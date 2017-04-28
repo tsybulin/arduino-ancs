@@ -20,7 +20,9 @@ LCD::LCD() : lcd() {
     memset(this->notifications, 0x00, sizeof(this->notifications)) ;
 }
 
-void LCD::setup() {
+byte LCD::setup() {
+    byte result = 0x0 ;
+    
     this->lcd.begin(LCD_COLS, LCD_LINES) ;
     this->lcd.clear() ;
     this->lcd.setBacklight(LCD_BACKLIGHT_ON) ;
@@ -29,16 +31,23 @@ void LCD::setup() {
     this->lcd.write((char) 0x0) ;
     this->lcd.print(F(" HELLO, ANCS")) ;
     this->lcd.setCursor(0, 1) ;
+    this->lcd.write((char) LCD_CHAR_ARROW_LEFT) ;
+    this->lcd.print(F(" CLEAR  BOOT ")) ;
     this->lcd.write((char) LCD_CHAR_ARROW_RIGHT) ;
-    this->lcd.print(F(" PRESS SELECT ")) ;
+    this->lcd.setCursor(15, 0) ;
     this->lcd.blink() ;
 
     do {
         this->buttons = this->lcd.readButtons() ;
-    } while (!this->buttons & BUTTON_SELECT) ;
+        if (this->buttons & BUTTON_LEFT) {
+            result |= 0x1 ;
+        }
+    } while (!(this->buttons & (BUTTON_LEFT | BUTTON_RIGHT))) ;
     this->lcd.noBlink() ;
     
     this->fire() ;
+
+    return result ;
 }
 
 void LCD::poll() {    
@@ -122,10 +131,10 @@ void LCD::fire() {
         this->lcd.print(F(" INCOMING CALL")) ;
     } else if (this->notifications[AncsNotificationCategoryIdEmail] > 0) {
         this->flash = true ;
-        this->lcd.print(F("   YOU GOT ")) ;
+        this->lcd.print(F("  YOU'VE GOT ")) ;
         this->lcd.print(this->notifications[AncsNotificationCategoryIdEmail]) ;
         this->lcd.setCursor(5, 1) ;
-        this->lcd.print(F("MAILS")) ;
+        this->lcd.print(F("MAIL(S)")) ;
     } else if (this->notifications[AncsNotificationCategoryIdSocial] > 0) {
         this->flash = true ;
         this->lcd.setCursor(4, 0) ;

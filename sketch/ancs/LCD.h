@@ -18,7 +18,7 @@ enum AncsStatus {
 class LCD {
     public:
         LCD() ;
-        void setup() ;
+        byte setup() ;
         void poll() ;
         void didConnected() ;
         void didDisconnected() ;

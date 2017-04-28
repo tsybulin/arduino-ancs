@@ -10,7 +10,10 @@ void setup() {
     ancs.setEventHandler(BLEDisconnected, didBonded) ;
     ancs.setEventHandler(BLERemoteServicesDiscovered, didDiscovered) ;
     ancs.setNoficationHandler(notificatonDidChanged) ;
-    lcd.setup() ;
+    byte options = lcd.setup() ;
+    if (options & 0x1) {
+        ancs.clearStoreData() ;
+    }
     ancs.setup() ;
 }
 

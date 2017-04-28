@@ -12,6 +12,7 @@ class ANCS : public BLEPeripheral {
         ANCS() ;
         void setup() ;
         void poll() ;
+        void clearStoreData() ;
         void setEventHandler(BLEPeripheralEvent event, ANCSEventHandler handler) ;
         void setNoficationHandler(BLERemoteCharacteristicEventHandler handler) ;
     protected:

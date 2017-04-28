@@ -10,7 +10,6 @@ ANCS::ANCS() :
 }
 
 void ANCS::setup() {
-    this->bleBondStore.clearData() ;
     this->setBondStore(this->bleBondStore) ;
     this->setServiceSolicitationUuid(this->ancsService.uuid()) ;
     this->setLocalName("ANCS") ;
@@ -32,6 +31,10 @@ void ANCS::setNoficationHandler(BLERemoteCharacteristicEventHandler handler) {
 
 void ANCS::poll() {
     BLEPeripheral::poll() ;
+}
+
+void ANCS::clearStoreData() {
+    this->bleBondStore.clearData() ;
 }
 
 void ANCS::BLEDeviceConnected(BLEDevice& device, const unsigned char* address) {
