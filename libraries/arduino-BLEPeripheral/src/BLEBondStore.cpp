@@ -38,7 +38,10 @@ bool BLEBondStore::hasData() {
 
 void BLEBondStore::clearData() {
 #if defined(__AVR__) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
-  eeprom_write_byte((unsigned char *)this->_offset, 0x00);
+  uint8_t b = eeprom_read_byte((unsigned char *)this->_offset) ;
+  if (b != 0x0) {
+    eeprom_write_byte((unsigned char *)this->_offset, 0x00);
+  }
 #elif defined(NRF51) || defined(NRF52)
   int32_t pageNo = (uint32_t)_flashPageStartAddress / NRF_FICR->CODEPAGESIZE;
 
@@ -67,10 +70,16 @@ void BLEBondStore::clearData() {
 
 void BLEBondStore::putData(const unsigned char* data, unsigned int offset, unsigned int length) {
 #if defined(__AVR__) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
-  eeprom_write_byte((unsigned char *)this->_offset, 0x01);
+  uint8_t b = eeprom_read_byte((unsigned char *)this->_offset) ;
+  if (b != 0x01) {
+    eeprom_write_byte((unsigned char *)this->_offset, 0x01);
+  }
 
   for (unsigned int i = 0; i < length; i++) {
-    eeprom_write_byte((unsigned char *)this->_offset + offset + i + 1, data[i]);
+  	b = eeprom_read_byte((unsigned char *)this->_offset + offset + i + 1) ;
+  	if (b != data[i]) {
+      eeprom_write_byte((unsigned char *)this->_offset + offset + i + 1, data[i]);
+  	}
   }
 #elif defined(NRF51) || defined(NRF52)  // ignores offset
   this->clearData();
