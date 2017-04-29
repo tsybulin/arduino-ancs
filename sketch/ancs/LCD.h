@@ -19,7 +19,7 @@ class LCD {
     public:
         LCD() ;
         byte setup() ;
-        void poll() ;
+        byte poll() ;
         void didConnected() ;
         void didDisconnected() ;
         void didBonded() ;
@@ -27,13 +27,12 @@ class LCD {
         void notificatonDidChanged(uint8_t categoryId, byte count) ;
     private:
         void fire() ;
+        byte menu() ;
         byte totalCount() ;
         
         Adafruit_RGBLCDShield lcd  ;
         unsigned long backlightTimer ;
-        boolean backlight ;
-        boolean flash ;
-        uint8_t buttons ;
+        byte options ;
         byte notifications[CATEGORY_COUNT] ;
         AncsStatus ancsStatus ;
 } ;

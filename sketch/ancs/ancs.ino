@@ -5,6 +5,7 @@ ANCS ancs ;
 LCD lcd ;
 
 void setup() {
+    // Serial.begin(115200) ;
     ancs.setEventHandler(BLEConnected, didConnected) ;
     ancs.setEventHandler(BLEDisconnected, didDisconnected) ;
     ancs.setEventHandler(BLEDisconnected, didBonded) ;
@@ -19,7 +20,10 @@ void setup() {
 
 void loop() {
     ancs.poll() ;
-    lcd.poll() ;
+    byte result = lcd.poll() ;
+    if (result & 0x1) {
+        ancs.clearStoreData() ;
+    }
 }
 
 void didConnected(ANCS *ancs) {
