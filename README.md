@@ -19,4 +19,6 @@
 | D9 | S/W Configurable | RST |
 | GND | | GND |
 | +5V | | VIN |
-
+| | | **Optional** |
+| D6 | _optional_, PWM required | Buzzer |
+| D5 | _optional_ | Led |

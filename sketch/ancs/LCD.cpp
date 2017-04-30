@@ -7,6 +7,9 @@
 #define LCD_BACKLIGHT_ON 0x1
 #define LCD_BACKLIGHT_OFF 0x0
 
+#define BUZZER_PIN 6
+#define LED_PIN 5
+
 const unsigned int BACKLIGHT_TIMEOUT = 5000 ;
 const unsigned int FLASH_TIMEOUT_ON  = 1000 ;
 const unsigned int FLASH_TIMEOUT_OFF = 2000 ;
@@ -30,6 +33,8 @@ LCD::LCD() : lcd() {
 
 byte LCD::setup() {
     byte result = 0x0 ;
+    pinMode(BUZZER_PIN, OUTPUT) ;
+    pinMode(LED_PIN, OUTPUT) ;
     
     this->lcd.begin(LCD_COLS, LCD_LINES) ;
     this->lcd.clear() ;
@@ -103,26 +108,28 @@ byte LCD::poll() {
         this->backlightTimer = millis() ;
     }
     
-    if (!backlightAvailable) {
-        if (baclkightOn) {
-            this->options &= ~OPTIONS_BACKLIGHT ;
-            this->lcd.setBacklight(LCD_BACKLIGHT_OFF) ;
-        }
-        return result ;
-    }
-
     if ((this->options & OPTIONS_FLASH)) {
         if (baclkightOn && ((millis() - this->backlightTimer) > FLASH_TIMEOUT_ON)) {
             this->options ^= OPTIONS_BACKLIGHT ;
-            this->lcd.setBacklight(LCD_BACKLIGHT_OFF) ;
+            digitalWrite(BUZZER_PIN, LOW) ;
+            digitalWrite(LED_PIN, LOW) ;
+            if (backlightAvailable) {
+                this->lcd.setBacklight(LCD_BACKLIGHT_OFF) ;
+            }
             this->backlightTimer = millis() ;
         } else if (!baclkightOn && ((millis() - this->backlightTimer) > FLASH_TIMEOUT_OFF)) {
             this->options ^= OPTIONS_BACKLIGHT ;
-            this->lcd.setBacklight(LCD_BACKLIGHT_ON) ;
+            analogWrite(BUZZER_PIN, 179) ;
+            digitalWrite(LED_PIN, HIGH) ;
+            if (backlightAvailable) {
+                this->lcd.setBacklight(LCD_BACKLIGHT_ON) ;
+            }
             this->backlightTimer = millis() ;
         }
     } else if (baclkightOn && ((millis() - this->backlightTimer) > BACKLIGHT_TIMEOUT)) {
         this->options ^= OPTIONS_BACKLIGHT ;
+        digitalWrite(LED_PIN, LOW) ;
+        digitalWrite(BUZZER_PIN, LOW) ;
         this->lcd.setBacklight(LCD_BACKLIGHT_OFF) ;
     }
 
