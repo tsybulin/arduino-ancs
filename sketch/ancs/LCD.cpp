@@ -194,7 +194,7 @@ byte LCD::menu() {
 
         if (buttons & BUTTON_LEFT) {
             om = m ;
-            m = m > 0 ? m + 1 : 4 ;
+            m = m > 0 ? m - 1 : 4 ;
             continue ;
         } else if (buttons & BUTTON_RIGHT) {
             om = m ;
@@ -216,8 +216,6 @@ byte LCD::menu() {
                 uint8_t buzzer[8] = ICO_SOUND_OFF ;
                 this->lcd.createChar(1, buzzer) ;
             }
-
-            
         } else if (m == 3 && buttons & BUTTON_SELECT) {
             om = 0 ;
             this->options ^= OPTIONS_LIGHT ;

@@ -3,9 +3,10 @@
 
 ANCS ancs ;
 LCD lcd ;
+void (*resetFunc)(void) = 0 ;
 
 void setup() {
-    // Serial.begin(115200) ;
+    //Serial.begin(115200) ;
     ancs.setEventHandler(BLEConnected, didConnected) ;
     ancs.setEventHandler(BLEDisconnected, didDisconnected) ;
     ancs.setEventHandler(BLEDisconnected, didBonded) ;
@@ -14,6 +15,7 @@ void setup() {
     byte options = lcd.setup() ;
     if (options & 0x1) {
         ancs.clearStoreData() ;
+        resetFunc() ;
     }
     ancs.setup() ;
 }
@@ -23,6 +25,7 @@ void loop() {
     byte result = lcd.poll() ;
     if (result & 0x1) {
         ancs.clearStoreData() ;
+        resetFunc() ;
     }
 }
 
