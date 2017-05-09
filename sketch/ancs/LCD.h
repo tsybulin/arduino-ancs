@@ -1,6 +1,7 @@
 #ifndef LCD_H
 #define LCD_H
 
+#undef USE_LED
 #include <Arduino.h>
 #include <stdint.h>
 #include <Adafruit_RGBLCDShield.h>

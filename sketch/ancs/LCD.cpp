@@ -8,18 +8,21 @@
 #define LCD_BACKLIGHT_OFF 0x0
 
 #define BUZZER_PIN 6
+
+#ifdef USE_LED
 #define LED_PIN 5
+#endif
 
 const unsigned int BACKLIGHT_TIMEOUT = 5000 ;
 const unsigned int FLASH_TIMEOUT_ON  = 1000 ;
 const unsigned int FLASH_TIMEOUT_OFF = 2000 ;
 const unsigned int BOOT_TIMEOUT      = 5000 ;
 
-#define OPTIONS_BACKLIGHT B000001
-#define OPTIONS_FLASH     B000010
+#define OPTIONS_BACKLIGHT B00000001
+#define OPTIONS_FLASH     B00000010
 
-#define OPTIONS_SOUND     B010000
-#define OPTIONS_LIGHT     B001000
+#define OPTIONS_LIGHT     B00010000
+#define OPTIONS_SOUND     B00100000
 
 #define backlightAvailable (this->options & OPTIONS_LIGHT)
 #define baclkightOn (this->options & OPTIONS_BACKLIGHT)
@@ -34,8 +37,9 @@ LCD::LCD() : lcd() {
 byte LCD::setup() {
     byte result = 0x0 ;
     pinMode(BUZZER_PIN, OUTPUT) ;
+#ifdef USE_LED
     pinMode(LED_PIN, OUTPUT) ;
-    
+#endif    
     this->lcd.begin(LCD_COLS, LCD_LINES) ;
     this->lcd.clear() ;
     this->lcd.setBacklight(LCD_BACKLIGHT_ON) ;
@@ -98,7 +102,7 @@ byte LCD::poll() {
 
         this->options &= ~OPTIONS_FLASH ;
 
-        if (buttons & BUTTON_SELECT) {
+        if (buttons & BUTTON_LEFT) {
             result = this->menu() ;
         } else if (backlightAvailable && !baclkightOn) {
             this->options ^= OPTIONS_BACKLIGHT ;
@@ -107,12 +111,14 @@ byte LCD::poll() {
 
         this->backlightTimer = millis() ;
     }
-    
+
     if ((this->options & OPTIONS_FLASH)) {
         if (baclkightOn && ((millis() - this->backlightTimer) > FLASH_TIMEOUT_ON)) {
             this->options ^= OPTIONS_BACKLIGHT ;
             digitalWrite(BUZZER_PIN, LOW) ;
+#ifdef USE_LED
             digitalWrite(LED_PIN, LOW) ;
+#endif
             if (backlightAvailable) {
                 this->lcd.setBacklight(LCD_BACKLIGHT_OFF) ;
             }
@@ -120,7 +126,9 @@ byte LCD::poll() {
         } else if (!baclkightOn && ((millis() - this->backlightTimer) > FLASH_TIMEOUT_OFF)) {
             this->options ^= OPTIONS_BACKLIGHT ;
             analogWrite(BUZZER_PIN, 179) ;
+#ifdef USE_LED
             digitalWrite(LED_PIN, HIGH) ;
+#endif
             if (backlightAvailable) {
                 this->lcd.setBacklight(LCD_BACKLIGHT_ON) ;
             }
@@ -128,7 +136,9 @@ byte LCD::poll() {
         }
     } else if (baclkightOn && ((millis() - this->backlightTimer) > BACKLIGHT_TIMEOUT)) {
         this->options ^= OPTIONS_BACKLIGHT ;
+#ifdef USE_LED
         digitalWrite(LED_PIN, LOW) ;
+#endif
         digitalWrite(BUZZER_PIN, LOW) ;
         this->lcd.setBacklight(LCD_BACKLIGHT_OFF) ;
     }
@@ -145,8 +155,8 @@ byte LCD::menu() {
     this->lcd.setCursor(0, 1) ;
     this->lcd.write((char) 0x1) ;
     this->lcd.write((char) 0x20) ;
-    this->lcd.write((char) LCD_CHAR_ARROW_LEFT) ;
-    this->lcd.print(F("  SELECT   ")) ;
+    this->lcd.write((char) LCD_CHAR_SELECT) ;
+    this->lcd.print(F("  CHOOSE   ")) ;
     this->lcd.write((char) LCD_CHAR_ARROW_RIGHT) ;
 
     this->lcd.setCursor(0, 0) ;
@@ -188,25 +198,21 @@ byte LCD::menu() {
             this->lcd.noBlink() ;
         }
 
-        if (buttons & BUTTON_SELECT && m == 0) {
+        if (buttons & BUTTON_LEFT && m == 0) {
             break ;
         }
 
-        if (buttons & BUTTON_LEFT) {
-            om = m ;
-            m = m > 0 ? m - 1 : 4 ;
-            continue ;
-        } else if (buttons & BUTTON_RIGHT) {
+        if (buttons & BUTTON_RIGHT) {
             om = m ;
             m = m < 4 ? m + 1 : 0 ;
             continue ;
-        } else if (m == 1 && buttons & BUTTON_SELECT) {
+        } else if (m == 1 && buttons & BUTTON_LEFT) {
             for (uint8_t i = 0; i < CATEGORY_COUNT; i++) {
                 this->notifications[i] = 0 ;
             }
             om = m ;
             m = 0 ;
-        } else if (m == 2 && buttons & BUTTON_SELECT) {
+        } else if (m == 2 && buttons & BUTTON_LEFT) {
             om = 0 ;
             this->options ^= OPTIONS_SOUND ;
             if (this->options & OPTIONS_SOUND) {
@@ -216,11 +222,11 @@ byte LCD::menu() {
                 uint8_t buzzer[8] = ICO_SOUND_OFF ;
                 this->lcd.createChar(1, buzzer) ;
             }
-        } else if (m == 3 && buttons & BUTTON_SELECT) {
+        } else if (m == 3 && buttons & BUTTON_LEFT) {
             om = 0 ;
             this->options ^= OPTIONS_LIGHT ;
             this->options &= ~OPTIONS_BACKLIGHT ;
-        } else if (m == 4 && buttons & BUTTON_SELECT) {
+        } else if (m == 4 && buttons & BUTTON_LEFT) {
             om = m ;
             m = 0 ;
             result |= 0x1 ;

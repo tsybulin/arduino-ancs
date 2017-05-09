@@ -1,12 +1,12 @@
 #include "ANCS.h"
 #include "LCD.h"
+#include "notifications.h"
 
 ANCS ancs ;
 LCD lcd ;
 void (*resetFunc)(void) = 0 ;
 
 void setup() {
-    //Serial.begin(115200) ;
     ancs.setEventHandler(BLEConnected, didConnected) ;
     ancs.setEventHandler(BLEDisconnected, didDisconnected) ;
     ancs.setEventHandler(BLEDisconnected, didBonded) ;
@@ -45,27 +45,6 @@ void didDiscovered(ANCS *ancs) {
     if (ancs) lcd.didDiscovered() ;
 }
 
-//enum AncsNotificationEventId {
-//  AncsNotificationEventIdAdded    = 0,
-//  AncsNotificationEventIdModified = 1,
-//  AncsNotificationEventIdRemoved  = 2
-//};
-//
-//enum AncsNotificationEventFlags {
-//  AncsNotificationEventFlagsSilent         = 1,
-//  AncsNotificationEventFlagsImportant      = 2,
-//  AncsNotificationEventFlagsPositiveAction = 4,
-//  AncsNotificationEventFlagsNegativeAction = 8
-//};
-
-struct AncsNotification {
-  unsigned char eventId;
-  unsigned char eventFlags;
-  unsigned char catergoryId;
-  unsigned char catergoryCount;
-  unsigned long notificationUid;
-} ;
-
 void notificatonDidChanged(BLECentral& central, BLERemoteCharacteristic& characteristic) {
     if (!central) {
         return ;
@@ -75,3 +54,4 @@ void notificatonDidChanged(BLECentral& central, BLERemoteCharacteristic& charact
     memcpy(&notification, characteristic.value(), sizeof(notification)) ;
     lcd.notificatonDidChanged(notification.catergoryId, notification.catergoryCount) ;
 }
+
