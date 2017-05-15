@@ -125,7 +125,9 @@ byte LCD::poll() {
             this->backlightTimer = millis() ;
         } else if (!baclkightOn && ((millis() - this->backlightTimer) > FLASH_TIMEOUT_OFF)) {
             this->options ^= OPTIONS_BACKLIGHT ;
-            analogWrite(BUZZER_PIN, 179) ;
+            if (this->options & OPTIONS_SOUND) {
+                analogWrite(BUZZER_PIN, 179) ;
+            }
 #ifdef USE_LED
             digitalWrite(LED_PIN, HIGH) ;
 #endif
